@@ -1,10 +1,33 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+// Lazy initialization — avoids crash when env vars missing at build time
+let _supabase: SupabaseClient | null = null;
+let _supabaseAdmin: SupabaseClient | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
+  return _supabase;
+}
 
-// Service role client для seed/admin операций
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+export function getSupabaseAdmin(): SupabaseClient {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabaseAdmin;
+}
+
+// Keep named exports for backwards compat (lazy proxy)
+export const supabase = new Proxy({} as SupabaseClient, {
+  get: (_, prop) => (getSupabase() as never)[prop as keyof SupabaseClient],
+});
+export const supabaseAdmin = new Proxy({} as SupabaseClient, {
+  get: (_, prop) => (getSupabaseAdmin() as never)[prop as keyof SupabaseClient],
+});
