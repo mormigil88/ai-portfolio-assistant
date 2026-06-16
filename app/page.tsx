@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
@@ -93,7 +94,21 @@ export default function Home() {
                   : "bg-gray-800 text-gray-100"
               }`}
             >
-              {m.content}
+              {m.role === "assistant" ? (
+                <ReactMarkdown
+                  components={{
+                    p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                    strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                    ul: ({ children }) => <ul className="list-disc list-inside space-y-0.5 my-1">{children}</ul>,
+                    ol: ({ children }) => <ol className="list-decimal list-inside space-y-0.5 my-1">{children}</ol>,
+                    code: ({ children }) => <code className="bg-gray-700 px-1 rounded text-xs font-mono">{children}</code>,
+                  }}
+                >
+                  {m.content}
+                </ReactMarkdown>
+              ) : (
+                m.content
+              )}
               {m.sources && m.sources.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {m.sources.map((s) => (
