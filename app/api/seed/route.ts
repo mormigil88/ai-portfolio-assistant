@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { embed } from "@/lib/embeddings";
 
 const KNOWLEDGE_BASE = [
   {
@@ -47,8 +46,11 @@ Experience with DaVinci AI (Veo 3.1 by Google), Kling AI for AI-generated video.
   },
   {
     source: "stripe-heygen-elevenlabs",
-    content: `Additional AI tools experience: HeyGen for AI avatar video generation, ElevenLabs for text-to-speech voice cloning, Stripe for subscription payment integration.
-Ready to integrate all three into a production product within a sprint.`,
+    content: `Additional AI tools hands-on:
+HeyGen — created a talking avatar video using Quick Create (script + stock photo → 17s rendered video). Familiar with the API for programmatic video generation.
+TTS / Voice — generated voice narration using Microsoft Edge TTS (edge-tts, 300+ neural voices). ElevenLabs API is on the roadmap; architecture is identical — swap endpoint and add voice_id. Also familiar with OpenAI TTS (tts-1 model).
+Stripe — integrated subscription payments (checkout sessions, webhooks) in SaaS projects.
+All can be wired into a product within a sprint.`,
   },
   {
     source: "approach",
@@ -68,10 +70,8 @@ export async function POST(req: NextRequest) {
   const results = [];
 
   for (const doc of KNOWLEDGE_BASE) {
-    const embedding = await embed(doc.content);
-
     const { error } = await supabaseAdmin.from("documents").upsert(
-      { source: doc.source, content: doc.content, embedding },
+      { source: doc.source, content: doc.content },
       { onConflict: "source" }
     );
 

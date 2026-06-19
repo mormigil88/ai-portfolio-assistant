@@ -1,5 +1,4 @@
 import { supabaseAdmin } from "./supabase";
-import { embed } from "./embeddings";
 
 export interface DocChunk {
   id: number;
@@ -8,15 +7,12 @@ export interface DocChunk {
   similarity: number;
 }
 
-export async function searchKnowledgeBase(query: string, topK = 4): Promise<DocChunk[]> {
-  const embedding = await embed(query);
-
-  const { data, error } = await supabaseAdmin.rpc("match_documents", {
-    query_embedding: embedding,
-    match_count: topK,
-    match_threshold: 0.3,
-  });
+// Full-table fetch — works without vector search for small knowledge bases
+export async function searchKnowledgeBase(_query: string): Promise<DocChunk[]> {
+  const { data, error } = await supabaseAdmin
+    .from("documents")
+    .select("id, content, source");
 
   if (error) throw new Error(`Supabase RAG error: ${error.message}`);
-  return (data ?? []) as DocChunk[];
+  return (data ?? []).map((row) => ({ ...row, similarity: 1 })) as DocChunk[];
 }
