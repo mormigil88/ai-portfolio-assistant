@@ -1,16 +1,14 @@
--- 1. Enable pgvector extension
-create extension if not exists vector;
+-- Migration: switch from OpenAI 1536-dim to Gemini 768-dim embeddings
+-- Run this in Supabase Dashboard → SQL Editor
 
--- 2. Documents table (Gemini text-embedding-004: 768 dims)
-create table if not exists documents (
-  id          bigserial primary key,
-  source      text not null unique,
-  content     text not null,
-  embedding   vector(768),
-  created_at  timestamptz default now()
-);
+-- 1. Drop old index
+drop index if exists documents_embedding_hnsw_idx;
 
--- 3. Vector similarity search function
+-- 2. Re-create embedding column with 768 dims
+alter table documents drop column if exists embedding;
+alter table documents add column embedding vector(768);
+
+-- 3. Update match_documents function
 create or replace function match_documents(
   query_embedding vector(768),
   match_count     int     default 4,
@@ -35,6 +33,6 @@ as $$
   limit match_count;
 $$;
 
--- 4. HNSW index for fast ANN search
+-- 4. Recreate HNSW index
 create index if not exists documents_embedding_hnsw_idx
   on documents using hnsw (embedding vector_cosine_ops);

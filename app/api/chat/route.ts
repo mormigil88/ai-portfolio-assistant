@@ -27,16 +27,17 @@ async function notifyN8N(question: string, answer: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const { messages } = await req.json();
-  const userQuestion = messages[messages.length - 1]?.content ?? "";
+  try {
+    const { messages } = await req.json();
+    const userQuestion = messages[messages.length - 1]?.content ?? "";
 
-  // RAG: find relevant chunks
-  const chunks = await searchKnowledgeBase(userQuestion);
-  const context = chunks.length
-    ? chunks.map((c) => `[${c.source}]\n${c.content}`).join("\n\n---\n\n")
-    : "No specific context found.";
+    // RAG: find relevant chunks
+    const chunks = await searchKnowledgeBase(userQuestion);
+    const context = chunks.length
+      ? chunks.map((c) => `[${c.source}]\n${c.content}`).join("\n\n---\n\n")
+      : "No specific context found.";
 
-  const systemPrompt = `You are an AI assistant representing Andrey Orlov's professional portfolio.
+    const systemPrompt = `You are an AI assistant representing Andrey Orlov's professional portfolio.
 Answer questions about his skills, projects, and experience based on the provided context.
 Be concise, specific, and use numbers/facts where available. Answer in the language the user writes in.
 
@@ -44,21 +45,28 @@ Be concise, specific, and use numbers/facts where available. Answer in the langu
 ${context}
 </context>`;
 
-  const response = await llm.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    max_tokens: 1024,
-    messages: [
-      { role: "system", content: systemPrompt },
-      ...messages.map((m: { role: string; content: string }) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      })),
-    ],
-  });
+    const response = await llm.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      max_tokens: 1024,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages.map((m: { role: string; content: string }) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        })),
+      ],
+    });
 
-  const answer = response.choices[0]?.message?.content ?? "";
+    const answer = response.choices[0]?.message?.content ?? "";
 
-  notifyN8N(userQuestion, answer);
+    notifyN8N(userQuestion, answer);
 
-  return NextResponse.json({ answer, sources: chunks.map((c) => c.source) });
+    return NextResponse.json({ answer, sources: chunks.map((c) => c.source) });
+  } catch (err) {
+    console.error("[chat] error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : String(err) },
+      { status: 500 }
+    );
+  }
 }
