@@ -58,6 +58,28 @@ All can be wired into a product within a sprint.`,
 Comfortable working solo (full stack) or leading small AI product teams. Experience: analytics, business development, AI product building.
 Timeline awareness: launched Rus Maktabi from zero to deployed landing + TG channel + 6 posts + ad creatives in 10 days.`,
   },
+  {
+    source: "project-neurostaff",
+    content: `NeuroStaff — AI Agent Platform: Telegram bots as role-based AI employees ("neuro-staff") for businesses.
+4-level memory architecture: Buffer (last 10 messages in LLM context), Episodic (LLM summaries every 20 messages), Semantic (pgvector MiniLM-384 cosine search), Procedural (versioned skills from DB).
+Supervisor Agent: detects negative feedback and implicit failure signals → LLM rewrites skill instructions → saves versioned history with reasons.
+Orchestrator: spawns and monitors bot subprocesses per client agent. Super Agent Bot: 5-step onboarding → auto-generates skills via LLM → deploys instantly.
+Security: Fernet AES-128 encryption of client tokens, monthly token usage dashboard with cost estimates.
+Stack: Python, PostgreSQL 17, pgvector, sentence-transformers, python-telegram-bot v21, Groq/Claude API. Business: 30,000₽/month per client, 70–80% margin.`,
+  },
+  {
+    source: "project-ecoclub",
+    content: `EcoClub Bot — inherited and audited a broken TypeScript/Node.js monorepo (Telegram + MAX Messenger bots with Bitrix24 CRM integration).
+In 1 day of code audit identified the root cause of "4 months, zero results": BITRIX_MOCK=true in .env — all CRM leads were silently discarded, never reaching Bitrix24. The fix is one line in .env.
+Revised readiness from 35% to 65% — the core FSM, Redis sessions, Bitrix24 real integration and MAX bot code were all already written.
+Stack: TypeScript, Node.js, Grammy (Telegram), MAX Messenger SDK, Redis FSM, BullMQ queues, Bitrix24 CRM webhooks.`,
+  },
+  {
+    source: "skills-2026-update",
+    content: `Extended skills (July 2026): pgvector with sentence-transformers (MiniLM-384, multilingual, Russian-capable local embeddings), Fernet symmetric encryption for secrets management, APScheduler for cron jobs inside Python apps, subprocess-based multi-agent orchestration, Supervisor pattern (auto-improvement loops driven by user feedback), ConversationHandler FSM in python-telegram-bot v21, Groq API (llama-3.3-70b-versatile), PostgreSQL 17.
+Also: TypeScript/Node.js monorepo auditing, code archaeology (finding critical hidden bugs like BITRIX_MOCK).
+Business skills: SaaS pricing at 30k₽/month, LTV/CAC calculation (achieved 64x ratio in EdTech), margin analysis for AI service businesses.`,
+  },
 ];
 
 export async function POST(req: NextRequest) {
