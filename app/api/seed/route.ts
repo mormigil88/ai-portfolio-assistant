@@ -28,6 +28,15 @@ Business metrics: CAC $11, LTV $730, LTV/CAC 64x, break-even at 5 students. Cour
 AI contributions: generated FB/Instagram video ads using moviepy + Ken Burns effect + PIL, wrote Uzbek copy as market expert.`,
   },
   {
+    source: "project-rusmaktabi-lms",
+    content: `Rus Maktabi LMS — full EdTech learning platform for the Rus Maktabi school, evolving from a single-course landing page into a multi-course LMS.
+Stack: Next.js 16 (App Router), Supabase (Auth + PostgreSQL + Row-Level-Security), Tailwind CSS v4, TypeScript.
+Built in one continuous cycle: course catalog, student dashboard, lesson player with progress tracking, Payme (Uzbekistan) and YooKassa (Russia) payment webhooks with automatic enrollment activation, and an admin panel with a revenue dashboard (per-day/per-course breakdown) plus full CRUD for courses/modules/lessons.
+Solved an RLS-recursion bug with a security-definer get_my_role() Postgres function, and used a service-role Supabase client to bypass RLS for webhook and admin operations.
+Deployed to Vercel (rusmaktabi-lms.vercel.app) with Yandex.Metrica analytics, mobile-first layout (375px+), and security headers (X-Frame-Options, Referrer-Policy).
+Design system: "Trust & Authority" — Trust Teal (#0F766E) + CTA Blue (#0369A1), Lexend + Source Sans 3 fonts — saved as a reusable design-system spec for future client projects.`,
+  },
+  {
     source: "project-cartback",
     content: `CartBack — SaaS for e-commerce abandoned cart recovery (Telegram notifications).
 Stack: FastAPI backend, PostgreSQL, Telegram Bot API, deployed on VPS.
@@ -60,12 +69,15 @@ Timeline awareness: launched Rus Maktabi from zero to deployed landing + TG chan
   },
   {
     source: "project-neurostaff",
-    content: `NeuroStaff — AI Agent Platform: Telegram bots as role-based AI employees ("neuro-staff") for businesses.
+    content: `NeuroStaff — AI Agent Platform: Telegram bots as role-based AI employees ("neuro-staff") for businesses. Moved from local Mac development to production on Railway (US West, managed Postgres) in July 2026 — the local machine is now dev-only.
 4-level memory architecture: Buffer (last 10 messages in LLM context), Episodic (LLM summaries every 20 messages), Semantic (pgvector MiniLM-384 cosine search), Procedural (versioned skills from DB).
-Supervisor Agent: detects negative feedback and implicit failure signals → LLM rewrites skill instructions → saves versioned history with reasons.
+Supervisor Agent: detects negative feedback and implicit failure signals → LLM rewrites skill instructions → saves versioned history with reasons. Also runs a text-quality detector (regex over Unicode script ranges) that catches script-mixing corruption (CJK/Vietnamese/Hangul/Thai/Arabic/Devanagari) and triggers automatic regeneration through a fallback chain (primary LLM → free OpenRouter Qwen → Claude, up to 2 retries).
+Tool-calling agents (agent_type='tools'): an SEO agent with 6 tools (page audit, PageSpeed, robots.txt/sitemap checks, broken-link detection), and an image-generation tool via Pollinations.ai (free Flux backend) wired through the full tool-calling loop including regeneration and fallbacks.
+Built a dedicated managerial agent ("Тимур") for a sister project (Rus Maktabi), reusing the same DB/orchestrator instead of a separate build — answers admin questions in natural language over a 349-chunk knowledge base of that project's own documentation.
+Also shipped a one-way Notion↔Obsidian sync script (Obsidian as source of truth) and per-client BYO-LLM-key onboarding, where the client attaches their own Groq/Claude/OpenAI key instead of paying per token.
 Orchestrator: spawns and monitors bot subprocesses per client agent. Super Agent Bot: 5-step onboarding → auto-generates skills via LLM → deploys instantly.
 Security: Fernet AES-128 encryption of client tokens, monthly token usage dashboard with cost estimates.
-Stack: Python, PostgreSQL 17, pgvector, sentence-transformers, python-telegram-bot v21, Groq/Claude API. Business: 30,000₽/month per client, 70–80% margin.`,
+Stack: Python, PostgreSQL 17, pgvector, sentence-transformers, python-telegram-bot v21, Groq/Claude API, Railway. Business: 30,000₽/month per AI employee (matches competitor pricing), ~90,000₽/month average at 3 agents per client.`,
   },
   {
     source: "project-ecoclub",
@@ -79,6 +91,13 @@ Stack: TypeScript, Node.js, Grammy (Telegram), MAX Messenger SDK, Redis FSM, Bul
     content: `Extended skills (July 2026): pgvector with sentence-transformers (MiniLM-384, multilingual, Russian-capable local embeddings), Fernet symmetric encryption for secrets management, APScheduler for cron jobs inside Python apps, subprocess-based multi-agent orchestration, Supervisor pattern (auto-improvement loops driven by user feedback), ConversationHandler FSM in python-telegram-bot v21, Groq API (llama-3.3-70b-versatile), PostgreSQL 17.
 Also: TypeScript/Node.js monorepo auditing, code archaeology (finding critical hidden bugs like BITRIX_MOCK).
 Business skills: SaaS pricing at 30k₽/month, LTV/CAC calculation (achieved 64x ratio in EdTech), margin analysis for AI service businesses.`,
+  },
+  {
+    source: "skill-delegate",
+    content: `Delegate — a cost-optimization routing skill that automatically sends trivial/low/medium-complexity generation tasks (translation, docstrings, boilerplate CRUD/REST, simple regex, JSON/YAML/Markdown formatting, basic unit tests) to free-tier models (Groq Llama 3.3 70B, Gemini) instead of running everything on the primary paid model.
+Classifies each incoming task against a fixed complexity-tier table before execution; debugging of complex issues, architectural decisions, multi-file/multi-system integration, and security-sensitive work always stay on the primary model.
+Implemented as a Python CLI router (ask.py) with --auto-tier or explicit --tier flags, reading API keys from environment variables — secrets and credentials are never passed into delegated prompts.
+Reduced primary-model token usage by roughly 60% across a real multi-project workflow without sacrificing output quality on complex tasks.`,
   },
 ];
 
