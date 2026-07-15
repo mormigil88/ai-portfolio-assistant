@@ -128,6 +128,17 @@ Also: TypeScript/Node.js monorepo auditing, code archaeology (finding critical h
 Business skills: SaaS pricing at 30k₽/month, LTV/CAC calculation (achieved 64x ratio in EdTech), margin analysis for AI service businesses.`,
   },
   {
+    source: "project-toy-wholesale-app",
+    content: `Toy Wholesale App — Telegram Mini App B2B marketplace for a toy wholesaler's ~200 recurring resale clients (previously physical-only: buyers travel to a Moscow location to see stock and order in person).
+Stack: Express + TypeScript + Prisma/PostgreSQL backend, React + Vite + TypeScript frontend, deployed as two Railway services from a single monorepo, Telegram Bot API for auth/notifications.
+Built multi-tenant from day one: a Shop model (slug, bot token, Telegram channel chat_id) scopes every table, so onboarding a second wholesaler's shop on the same platform needs no code changes — just a new bot, a seeded Shop row, and a second frontend deploy pointed at the new shop slug.
+Auth: verifies the Telegram Mini App initData HMAC signature server-side against each shop's own bot token, then confirms channel membership via getChatMember — no manual approval, anyone in the client's Telegram channel gets in automatically.
+Product catalog with a swipeable native-CSS image carousel per item (no JS library), wholesale pricing, live stock, and a "new arrival" badge. Reservations capture customer name + phone (shown in the seller's admin panel) and push an instant Telegram notification to the shop's admins.
+Found and fixed three real production bugs during live testing before the client demo: (1) deleting a product with existing order history violated a Postgres FK RESTRICT constraint and leaked a raw Prisma stack trace to the client — converted to soft-delete (isActive flag); (2) the @twa-dev/sdk npm package (v8) shipped an incomplete WebApp export missing .ready(), crashing React before first render (blank screen on open) — replaced with the official telegram-web-app.js script loaded directly; (3) react-router-dom's HashRouter was silently corrupting Telegram's own #tgWebAppData=... auth payload because both use the URL hash fragment — switched to BrowserRouter.
+Manually vetted every stock photo pulled from a free tagged-photo API before using it in the demo catalog — random-tag image services can surface off-topic or inappropriate results even for innocuous search terms like "doll" or "teddy".
+Delivered end-to-end in under 48 hours: discovery interview → spec → schema/API/frontend → Railway deploy → live client demo, entirely through conversational iteration with Claude Code (no manual coding).`,
+  },
+  {
     source: "skill-delegate",
     content: `Delegate — a cost-optimization routing skill that automatically sends trivial/low/medium-complexity generation tasks (translation, docstrings, boilerplate CRUD/REST, simple regex, JSON/YAML/Markdown formatting, basic unit tests) to free-tier models (Groq Llama 3.3 70B, Gemini) instead of running everything on the primary paid model.
 Classifies each incoming task against a fixed complexity-tier table before execution; debugging of complex issues, architectural decisions, multi-file/multi-system integration, and security-sensitive work always stay on the primary model.
